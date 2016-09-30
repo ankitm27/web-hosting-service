@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html ng-app="Project">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css" media="screen" charset="utf-8">
+    <link rel="icon" href="static/img/favicon.ico" type="image/x-icon" sizes="16x16">
+    <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.min.css" media="screen" charset="utf-8">
+    <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="node_modules/angular/angular.min.js"></script>
+    <script type="text/javascript" src="node_modules/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <link rel="stylesheet" href="static/css/custom.css" media="screen" charset="utf-8">
+  </head>
+  <body ng-controller="NavigationController" id="myPage" data-spy="scroll" data-target=".navbar" data-offset="50">
+    <!-- <button type="button" name="button" ng-click="docker()">Click me</button> -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/"><img src="static/img/icon.png" alt="" style="height: 60px;width: 75px;margin: -17px;"/></a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+          <ul class="nav navbar-nav navbar-right">
+            <li ng-show="!isLoggedIn"><a ui-sref="signUp"><i class="fa fa-user-plus fa-lg"></i>Sign Up</a></li>
+            <li ng-show="!isLoggedIn"><a ui-sref="logIn"><i class="fa fa-sign-in fa-lg"></i>Log In</a></li>
+            <li ng-show="isLoggedIn"><a ui-sref="logOut"><i class="fa fa-sign-out fa-lg"></i>Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div ng-controller="LogInController">
+      <div class="container-fluid" style="min-height: 500px;padding-top: 75px;padding-bottom:10px;">
+        <div ng-show="!isLoader">
+          <div ng-show="!isLoggedIn">
+            <div ui-view></div>
+          </div>
+          <div ng-show="isLoggedIn">
+            <div ng-show="!isViewFile">
+              <div class="col-md-12">
+                <h3><i class="fa fa-home fa-lg"></i><b>pwd:</b>{{current_folder}}<span style="float:right;">IP:{{ip}}</span><h3>
+              </div>
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th><h2 style="color: #000000"><b><i class="fa fa-list fa-lg"></i> Files and Folders</b></h2></th>
+                  </tr>
+                </thead>
+                <tbody ng-repeat="file in files">
+                  <tr>
+                    <td>
+                      <span style="cursor:pointer;">
+                        <a ng-show="file.isDir" ng-click="open('open',file.name)"><i class="fa fa-folder-open fa-lg"></i>&nbsp; {{file.name}}</a><a ng-show="!file.isDir" ng-click="view('view',file.name)"><i class="fa fa-file-o fa-lg"></i>&nbsp; {{file.name}}</a>
+                      </span>
+                      <span style="float:right;">
+                        <button ng-show="!file.isDir" type="button" name="download" class="btn" ng-click="download('download',file.name)"><i class="fa fa-download fa-lg"></i></button>
+                        <button type="button" name="delete" class="btn" ng-click="renamedelete('delete',file.name)"><i class="fa fa-trash fa-lg"></i></button>
+                        <button type="button" name="rename" class="btn" ng-click="renamedelete('rename',file.name)"><i class="fa fa-pencil fa-lg"></i></button>
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="col-md-12">
+                <span style="float: left;">
+                  <button type="button" name="back" class="btn" ng-click = "back('back')"><i class="fa fa-angle-double-left fa-lg"></i>  <b>Back</b></button>
+                </span>
+                <span style="float: right;">
+                  <input type="file" name="file" id="file" class="col-md-3 btn"/ style="margin-right: 4px;width:225px;">
+                  <button type="button" name="upload" class="btn" ng-click = "upload('upload')"><i class="fa fa-cloud-upload fa-lg"></i>  <b>Upload</b></button>
+                  <button type="button" name="create" class="btn" ng-click = "create('create', current_folder)"><i class="fa fa-plus fa-lg"></i>  <b>Directory</b></button>
+                </span>
+              </div>
+            </div>
+            <div ng-show="isViewFile">
+              <h3><i class="fa fa-home fa-lg"></i><b>pwf:</b>{{current_file}}<span style="float:right;">IP:{{ip}}</span><h3>
+              <div class="col-md-12">
+                <div class="form-group  col-md-12">
+                  <label for="text"><b><i class="fa fa-file-text fa-lg"></i>{{ filename }}</b></label><br><br>
+                  <textarea class="form-control" rows="25" id="text" ng-model="text" readonly="readonly" style="cursor: pointer"></textarea>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <span style="float: left;">
+                  <button type="button" name="reload" class="btn" ng-click = "reload()"><i class="fa fa-angle-double-left fa-lg"></i>  <b>Back</b></button>
+                </span>
+                <span style="float: right;">
+                  <button type="button" name="save" class="btn" ng-click = "save('save', filename)"><i class="fa fa-cloud-download fa-lg"></i>  <b>Save</b></button>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div ng-show="isLoader">
+          <center style="margin-top:150px;">
+            <i class="fa fa-spinner fa-pulse fa-5x fa-fw" style="color: #2d2d30;"></i>
+          </center>
+        </div>
+      </div>
+    </div>
+    <footer class="text-center">
+      <a class="up-arrow" href="#myPage" data-toggle="tooltip" title="TO TOP">
+        <span class="glyphicon glyphicon-chevron-up"></span>
+      </a><br><br>
+        <p>Bootstrap Theme Made By <a href="" data-toggle="tooltip" title="Visit w3schools"></a></p>
+    </footer>
+  </body>
+  <script type="text/javascript" src="app/app.js"></script>
+  <script type="text/javascript" src="app/signup/signup-controller.js"></script>
+  <script type="text/javascript" src="app/login/login-controller.js"></script>
+  <script type="text/javascript" src="app/logout/logout-controller.js"></script>
+  <script type="text/javascript" src="app/navigation-controller.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#text').on('click', function(){
+        $(this).prop('readonly', false);
+        $(this).css('cursor', 'default');
+      });
+    });
+  </script>
+</html>
